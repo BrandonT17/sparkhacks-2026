@@ -1,9 +1,8 @@
-// import Image from "next/image";
+import { redirect } from "next/navigation";
 
 export default function Home() {
-  return (
-    <div>
-      {/* put your code here for the Homepage */}
-    </div>
-  );
+  // Logic happens here (e.g., checking if user is logged in)
+  redirect('/dashboard');
+  
+  // No return statement needed after a redirect
 }
