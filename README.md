@@ -1,3 +1,17 @@
+> [!important] important commands
+
+run the project in localhost
+- pnpm dev
+
+git commands
+- git pull
+- git add . 
+- git commit -m "message"
+- git push
+- git checkout
+
+---
+
 This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
 
 ## Getting Started
