@@ -64,9 +64,13 @@ export default function Dashboard() {
               onChange={(e) => setQuery(e.target.value)}
               onKeyPress={handleKeyPress}
               disabled={loading}
-              className="min-h-[40px]"
+              className="min-h-[50px]"
             />
-            <Button onClick={search} disabled={loading} className="min-h-[40px]">
+            <Button
+              onClick={search}
+              disabled={loading}
+              className="min-h-[50px]"
+            >
               {loading ? "Searching..." : "Search"}
             </Button>
           </Field>

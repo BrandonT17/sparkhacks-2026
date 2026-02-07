@@ -10,7 +10,6 @@ import {
   Accordion,
   AccordionContent,
   AccordionItem,
-  AccordionTrigger,
 } from "@/components/ui/accordion";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { Label } from "@/components/ui/label";
@@ -31,14 +30,19 @@ export function AppSidebar() {
 
   return (
     <Sidebar collapsible="offcanvas" className="bg-white">
-      <SidebarHeader className="px-8 pt-7 pb-3">
+      <SidebarHeader className="px-8 pt-20 pb-3">
         <h2 className="text-xl font-medium uppercase tracking-widest text-black">
           FILTERS
         </h2>
       </SidebarHeader>
 
-      <SidebarContent className="px-8">
-        <Accordion type="multiple" className="w-full">
+      <SidebarContent className="px-8 ">
+        {/* We keep defaultValue so the items are 'expanded' in the state */}
+        <Accordion 
+          type="multiple" 
+          defaultValue={["gender", "size", "price"]} 
+          className="w-full"
+        >
           {/* GENDER */}
           <FilterItem value="gender" title="GENDER">
             <RadioGroup
@@ -113,7 +117,6 @@ export function AppSidebar() {
           </FilterItem>
         </Accordion>
 
-        {/* ✅ BUTTON BELOW PRICE RANGE + TOOLTIP (delay only here) */}
         <div className="pt-5 pb-2">
           <TooltipProvider delayDuration={600}>
             <Tooltip>
@@ -132,18 +135,7 @@ export function AppSidebar() {
                 side="bottom"
                 align="center"
                 sideOffset={6}
-                className="
-                  max-w-[200px]
-                  rounded-md
-                  bg-white
-                  px-2.5 py-2
-                  text-xs
-                  leading-snug
-                  text-neutral-800
-                  border border-neutral-200
-                  shadow-md
-                  text-center
-                "
+                className="max-w-[200px] rounded-md bg-white px-2.5 py-2 text-xs leading-snug text-neutral-800 border border-neutral-200 shadow-md text-center"
               >
                 Shop smarter. This filter surfaces brands committed to ethical production and responsible sourcing.
               </TooltipContent>
@@ -155,6 +147,11 @@ export function AppSidebar() {
   );
 }
 
+/**
+ * Modified FilterItem
+ * 1. Replaced AccordionTrigger with a div to remove clickability/chevron.
+ * 2. Kept AccordionItem and AccordionContent for layout consistency.
+ */
 function FilterItem({
   value,
   title,
@@ -166,13 +163,19 @@ function FilterItem({
 }) {
   return (
     <AccordionItem value={value} className="border-b border-neutral-200">
-      <AccordionTrigger className="py-3 hover:no-underline [&>svg]:h-5 [&>svg]:w-5 [&>svg]:text-neutral-500 [&>svg]:opacity-70">
+      {/* Using a div instead of AccordionTrigger:
+          - Removes the button role (non-clickable)
+          - Removes the automatic chevron icon
+      */}
+      <div className="flex items-center py-3">
         <span className="text-base font-normal uppercase tracking-widest text-black">
           {title}
         </span>
-      </AccordionTrigger>
+      </div>
 
-      <AccordionContent className="pb-3">{children}</AccordionContent>
+      <AccordionContent className="pb-3">
+        {children}
+      </AccordionContent>
     </AccordionItem>
   );
 }
