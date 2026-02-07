@@ -141,7 +141,7 @@ export function AppSidebar() {
                   text-center
                 "
               >
-                Ethical shopping means choosing items made with fair labor, responsible sourcing, and lower environmental impact.
+                Shop smarter. This filter surfaces brands committed to ethical production and responsible sourcing.
               </TooltipContent>
             </Tooltip>
           </TooltipProvider>
