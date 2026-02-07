@@ -1,33 +1,179 @@
-"use client"
+"use client";
 
-import * as React from "react"
+import * as React from "react";
 import {
   Sidebar,
   SidebarContent,
-  SidebarFooter,
-  SidebarGroup,
   SidebarHeader,
 } from "@/components/ui/sidebar";
-import { Button } from "@/components/ui/button";
-
-import Image from "next/image";
+import {
+  Accordion,
+  AccordionContent,
+  AccordionItem,
+  AccordionTrigger,
+} from "@/components/ui/accordion";
+import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
+import { Label } from "@/components/ui/label";
+import { Slider } from "@/components/ui/slider";
+import { LiquidGlassFilter } from "@/components/ui/liquid-glass-filter";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from "@/components/ui/tooltip";
 
 export function AppSidebar() {
+  const [gender, setGender] = React.useState("all");
+  const [size, setSize] = React.useState("all");
+  const [price, setPrice] = React.useState<[number, number]>([0, 250]);
+  const [ethical, setEthical] = React.useState(false);
+
   return (
-    <Sidebar>
-      <Image
-        src="/logo2.png"
-        alt="logo"
-        width={100}
-        height={100}
-        className=""
-      />
-      <SidebarHeader>hello</SidebarHeader>
-      <SidebarContent>
-        <SidebarGroup />
-        <SidebarGroup />
+    <Sidebar collapsible="offcanvas" className="bg-white">
+      <SidebarHeader className="px-8 pt-7 pb-3">
+        <h2 className="text-xl font-medium uppercase tracking-widest text-black">
+          FILTERS
+        </h2>
+      </SidebarHeader>
+
+      <SidebarContent className="px-8">
+        <Accordion type="multiple" className="w-full">
+          {/* GENDER */}
+          <FilterItem value="gender" title="GENDER">
+            <RadioGroup
+              value={gender}
+              onValueChange={setGender}
+              className="gap-2 pt-2"
+            >
+              {[
+                { value: "all", label: "All" },
+                { value: "women", label: "Women" },
+                { value: "men", label: "Men" },
+                { value: "unisex", label: "Unisex" },
+              ].map((opt) => (
+                <div key={opt.value} className="flex items-center gap-2">
+                  <RadioGroupItem value={opt.value} id={`g-${opt.value}`} />
+                  <Label
+                    htmlFor={`g-${opt.value}`}
+                    className="text-sm font-normal text-neutral-700"
+                  >
+                    {opt.label}
+                  </Label>
+                </div>
+              ))}
+            </RadioGroup>
+          </FilterItem>
+
+          {/* SIZE */}
+          <FilterItem value="size" title="SIZE">
+            <RadioGroup
+              value={size}
+              onValueChange={setSize}
+              className="gap-2 pt-2"
+            >
+              {[
+                { value: "all", label: "All" },
+                { value: "xs", label: "XS" },
+                { value: "s", label: "S" },
+                { value: "m", label: "M" },
+                { value: "l", label: "L" },
+                { value: "xl", label: "XL" },
+              ].map((opt) => (
+                <div key={opt.value} className="flex items-center gap-2">
+                  <RadioGroupItem value={opt.value} id={`s-${opt.value}`} />
+                  <Label
+                    htmlFor={`s-${opt.value}`}
+                    className="text-sm font-normal text-neutral-700"
+                  >
+                    {opt.label}
+                  </Label>
+                </div>
+              ))}
+            </RadioGroup>
+          </FilterItem>
+
+          {/* PRICE RANGE */}
+          <FilterItem value="price" title="PRICE RANGE">
+            <div className="pt-3">
+              <div className="mb-2 flex items-center justify-between text-sm font-normal text-neutral-600">
+                <span>${price[0]}</span>
+                <span>${price[1]}+</span>
+              </div>
+
+              <Slider
+                value={price}
+                onValueChange={(v) => setPrice(v as [number, number])}
+                min={0}
+                max={500}
+                step={5}
+                className="w-full"
+              />
+            </div>
+          </FilterItem>
+        </Accordion>
+
+        {/* ✅ BUTTON BELOW PRICE RANGE + TOOLTIP (delay only here) */}
+        <div className="pt-5 pb-2">
+          <TooltipProvider delayDuration={600}>
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <div className="w-full">
+                  <LiquidGlassFilter
+                    label="Ethical shopping"
+                    pressed={ethical}
+                    onPressedChange={setEthical}
+                    className="w-full justify-center"
+                  />
+                </div>
+              </TooltipTrigger>
+
+              <TooltipContent
+                side="bottom"
+                align="center"
+                sideOffset={6}
+                className="
+                  max-w-[200px]
+                  rounded-md
+                  bg-white
+                  px-2.5 py-2
+                  text-xs
+                  leading-snug
+                  text-neutral-800
+                  border border-neutral-200
+                  shadow-md
+                  text-center
+                "
+              >
+                Ethical shopping means choosing items made with fair labor,
+                responsible sourcing, and lower environmental impact.
+              </TooltipContent>
+            </Tooltip>
+          </TooltipProvider>
+        </div>
       </SidebarContent>
-      <SidebarFooter />
     </Sidebar>
+  );
+}
+
+function FilterItem({
+  value,
+  title,
+  children,
+}: {
+  value: string;
+  title: string;
+  children: React.ReactNode;
+}) {
+  return (
+    <AccordionItem value={value} className="border-b border-neutral-200">
+      <AccordionTrigger className="py-3 hover:no-underline [&>svg]:h-5 [&>svg]:w-5 [&>svg]:text-neutral-500 [&>svg]:opacity-70">
+        <span className="text-base font-normal uppercase tracking-widest text-black">
+          {title}
+        </span>
+      </AccordionTrigger>
+
+      <AccordionContent className="pb-3">{children}</AccordionContent>
+    </AccordionItem>
   );
 }
