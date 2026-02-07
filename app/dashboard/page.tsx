@@ -9,26 +9,27 @@ import { Input } from "@/components/ui/input"
 
 export default function Dashboard() {
   const [query, setQuery] = useState('')
-  const [recommendations, setRecommendations] = useState('')
+  const [data, setData] = useState<any>(null)
   const [loading, setLoading] = useState(false)
 
-  const getRecommendations = async () => {
+  const search = async () => {
     if (!query.trim()) return
     
     setLoading(true)
+    setData(null)
     
     try {
-      const response = await fetch('/api/recommend', {
+      const response = await fetch('/api/search', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ query })
+        body: JSON.stringify({ query, limit: 10 })
       })
       
-      const data = await response.json()
-      setRecommendations(data.recommendations)
+      const result = await response.json()
+      setData(result)
     } catch (error) {
       console.error('Error:', error)
-      setRecommendations('Sorry, something went wrong. Please try again.')
+      setData({ error: 'Sorry, something went wrong. Please try again.' })
     }
     
     setLoading(false)
@@ -36,7 +37,7 @@ export default function Dashboard() {
 
   const handleKeyPress = (e: React.KeyboardEvent) => {
     if (e.key === 'Enter') {
-      getRecommendations()
+      search()
     }
   }
 
@@ -54,33 +55,33 @@ export default function Dashboard() {
             onKeyPress={handleKeyPress}
             disabled={loading}
           />
-          <Button onClick={getRecommendations} disabled={loading}>
+          <Button onClick={search} disabled={loading}>
             {loading ? 'Searching...' : 'Search'}
           </Button>
         </Field>
       </section>
 
-      {/* RECOMMENDATIONS */}
+      {/* RESULTS */}
       <section className="mt-4 border-t pt-4">
-        <h1 className="pb-4">Recommendations:</h1>
+        <h1 className="pb-4">Results:</h1>
         <div className="border rounded-lg min-h-[200px] p-6">
           {loading && (
             <div className="flex items-center justify-center h-full">
-              <p className="text-gray-500">Getting AI recommendations...</p>
+              <p className="text-gray-500">Searching for products...</p>
             </div>
           )}
           
-          {!loading && !recommendations && (
+          {!loading && !data && (
             <div className="flex items-center justify-center h-full">
-              <p className="text-gray-400">Enter a search query to get personalized recommendations</p>
+              <p className="text-gray-400">Enter a search query to find products</p>
             </div>
           )}
           
-          {!loading && recommendations && (
-            <div className="prose max-w-none">
-              <div className="whitespace-pre-wrap text-gray-700">
-                {recommendations}
-              </div>
+          {!loading && data && (
+            <div className="overflow-auto">
+              <pre className="bg-gray-50 p-4 rounded text-xs">
+                {JSON.stringify(data, null, 2)}
+              </pre>
             </div>
           )}
         </div>
