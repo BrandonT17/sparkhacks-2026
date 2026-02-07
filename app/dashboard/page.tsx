@@ -5,6 +5,7 @@ import { Field } from "@/components/ui/field";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import ProductCard from "@/components/ui/layout/ProductCard";
+import { useFilters } from "@/lib/filter-context";
 
 interface Product {
   id: string;
@@ -17,23 +18,31 @@ interface Product {
 export default function Dashboard() {
   const [query, setQuery] = useState("");
   const [products, setProducts] = useState<Product[]>([]);
+  const [styleAdvice, setStyleAdvice] = useState("");  // ← ADD THIS
   const [loading, setLoading] = useState(false);
+  
+  const { filters } = useFilters();
 
   const search = async () => {
     if (!query.trim()) return;
 
     setLoading(true);
     setProducts([]);
+    setStyleAdvice("");  // ← ADD THIS
 
     try {
       const response = await fetch("/api/search", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ query, limit: 10 }),
+        body: JSON.stringify({ 
+          query, 
+          filters  
+        }),
       });
 
       const result = await response.json();
       setProducts(result.products || []);
+      setStyleAdvice(result.styleAdvice || "");  // ← ADD THIS
     } catch (error) {
       console.error("Error:", error);
       alert("Something went wrong. Please try again.");
@@ -76,6 +85,21 @@ export default function Dashboard() {
           </Field>
         </div>
       </section>
+
+      {/* ← ADD THIS: AI STYLE ADVICE */}
+      {styleAdvice && !loading && (
+        <section className="mb-6 mx-auto w-4/5">
+          <div className="bg-gradient-to-r from-purple-50 to-blue-50 border border-purple-200 rounded-lg p-6">
+            <div className="flex items-start gap-3">
+              <div className="text-2xl">✨</div>
+              <div>
+                <h3 className="font-semibold text-purple-900 mb-2">Style Recommendation</h3>
+                <p className="text-gray-700 leading-relaxed">{styleAdvice}</p>
+              </div>
+            </div>
+          </div>
+        </section>
+      )}
 
       {/* RESULTS */}
       <section className="border rounded-lg mt-4 p-4">

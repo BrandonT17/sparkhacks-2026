@@ -21,12 +21,11 @@ import {
   TooltipProvider,
   TooltipTrigger,
 } from "@/components/ui/tooltip";
+import { useFilters } from "@/lib/filter-context";  // ← ADD THIS
 
 export function AppSidebar() {
-  const [gender, setGender] = React.useState("all");
-  const [size, setSize] = React.useState("all");
-  const [price, setPrice] = React.useState<[number, number]>([0, 250]);
-  const [ethical, setEthical] = React.useState(false);
+  // Use shared filter state from context
+  const { filters, setGender, setSize, setPrice, setEthical } = useFilters();
 
   return (
     <Sidebar collapsible="offcanvas" className="bg-white">
@@ -37,7 +36,6 @@ export function AppSidebar() {
       </SidebarHeader>
 
       <SidebarContent className="px-8 ">
-        {/* We keep defaultValue so the items are 'expanded' in the state */}
         <Accordion 
           type="multiple" 
           defaultValue={["gender", "size", "price"]} 
@@ -46,7 +44,7 @@ export function AppSidebar() {
           {/* GENDER */}
           <FilterItem value="gender" title="GENDER">
             <RadioGroup
-              value={gender}
+              value={filters.gender}
               onValueChange={setGender}
               className="gap-2 pt-2"
             >
@@ -72,7 +70,7 @@ export function AppSidebar() {
           {/* SIZE */}
           <FilterItem value="size" title="SIZE">
             <RadioGroup
-              value={size}
+              value={filters.size}
               onValueChange={setSize}
               className="gap-2 pt-2"
             >
@@ -101,12 +99,12 @@ export function AppSidebar() {
           <FilterItem value="price" title="PRICE RANGE">
             <div className="pt-3">
               <div className="mb-2 flex items-center justify-between text-sm font-normal text-neutral-600">
-                <span>${price[0]}</span>
-                <span>${price[1]}+</span>
+                <span>${filters.priceMin}</span>
+                <span>${filters.priceMax}+</span>
               </div>
 
               <Slider
-                value={price}
+                value={[filters.priceMin, filters.priceMax]}
                 onValueChange={(v) => setPrice(v as [number, number])}
                 min={0}
                 max={500}
@@ -124,7 +122,7 @@ export function AppSidebar() {
                 <div className="w-full">
                   <LiquidGlassFilter
                     label="Ethical shopping"
-                    pressed={ethical}
+                    pressed={filters.ethical}
                     onPressedChange={setEthical}
                     className="w-full justify-center"
                   />
@@ -147,11 +145,6 @@ export function AppSidebar() {
   );
 }
 
-/**
- * Modified FilterItem
- * 1. Replaced AccordionTrigger with a div to remove clickability/chevron.
- * 2. Kept AccordionItem and AccordionContent for layout consistency.
- */
 function FilterItem({
   value,
   title,
@@ -163,10 +156,6 @@ function FilterItem({
 }) {
   return (
     <AccordionItem value={value} className="border-b border-neutral-200">
-      {/* Using a div instead of AccordionTrigger:
-          - Removes the button role (non-clickable)
-          - Removes the automatic chevron icon
-      */}
       <div className="flex items-center py-3">
         <span className="text-base font-normal uppercase tracking-widest text-black">
           {title}

@@ -1,13 +1,11 @@
 import { NextResponse } from 'next/server'
 import { searchProducts } from '@/lib/serpapi'
+import { getStyleRecommendation } from '@/lib/ai'  // ← ADD THIS
 
 export async function POST(req: Request) {
   try {
-    // Extract query and limit from the request body
-    // Defaulting limit to 10 if not provided by the client
-    const { query, limit = 10 } = await req.json()
-
-    // Validation: Ensure the query isn't empty
+    const { query, filters } = await req.json()
+    
     if (!query?.trim()) {
       return NextResponse.json(
         { error: 'Query is required' },
@@ -15,19 +13,106 @@ export async function POST(req: Request) {
       )
     }
 
-    // 1. Pass the dynamic limit to the search utility
-    const products = await searchProducts(query, limit)
-
-    // 2. Strictly limit the returned array to ensure no more than 'limit' items 
-    // are sent in the JSON response, even if the API returns a full page.
-    const limitedProducts = products.slice(0, limit)
-
+    // Build enhanced search query with "clothing" to filter out non-clothing items
+    let searchQuery = `${query} clothing fashion`
+    
+    // Add gender filter to search query
+    if (filters?.gender && filters.gender !== 'all') {
+      searchQuery += ` ${filters.gender}`
+    }
+    
+    // Add size filter to search query
+    if (filters?.size && filters.size !== 'all') {
+      searchQuery += ` size ${filters.size.toUpperCase()}`
+    }
+    
+    // Add price hint to search query
+    if (filters?.priceMax && filters.priceMax < 500) {
+      searchQuery += ` under $${filters.priceMax}`
+    } else if (filters?.priceMin && filters.priceMin > 0) {
+      searchQuery += ` over $${filters.priceMin}`
+    }
+    
+    console.log('Original query:', query)
+    console.log('Enhanced query:', searchQuery)
+    console.log('Filters:', filters)
+    
+    // ← ADD THIS: Get AI style recommendation in parallel with product search
+    const [products, styleAdvice] = await Promise.all([
+      searchProducts(searchQuery, 20),
+      getStyleRecommendation(query, filters)
+    ])
+    
+    // Filter out non-clothing items
+    const nonClothingKeywords = [
+      'phone', 'iphone', 'samsung', 'laptop', 'computer', 'tablet',
+      'ipad', 'tv', 'television', 'camera', 'speaker', 'headphone',
+      'earbuds', 'airpods', 'smartwatch', 'car', 'vehicle',
+      'bike', 'motorcycle', 'furniture', 'desk', 'chair', 'table',
+      'bed', 'sofa', 'couch', 'appliance', 'refrigerator', 'microwave',
+      'tool', 'drill', 'saw', 'toy', 'game', 'console', 'playstation',
+      'xbox', 'book', 'kindle', 'electronics', 'gadget', 'device'
+    ]
+    
+    let filteredProducts = products.filter((product) => {
+      const text = `${product.title} ${product.snippet || ''}`.toLowerCase()
+      return !nonClothingKeywords.some(keyword => text.includes(keyword))
+    })
+    
+    // CLIENT-SIDE FILTERING
+    
+    // Filter by price range
+    if (filters?.priceMin !== undefined || filters?.priceMax !== undefined) {
+      filteredProducts = filteredProducts.filter((product) => {
+        if (!product.extractedPrice) return true
+        
+        const min = filters.priceMin || 0
+        const max = filters.priceMax || 500
+        
+        return product.extractedPrice >= min && product.extractedPrice <= max
+      })
+    }
+    
+    // Filter by gender
+    if (filters?.gender && filters.gender !== 'all') {
+      filteredProducts = filteredProducts.filter((product) => {
+        const title = product.title.toLowerCase()
+        const genderKeywords = {
+          women: ['women', 'womens', 'ladies', 'female'],
+          men: ['men', 'mens', 'male', 'guys'],
+          unisex: ['unisex', 'neutral']
+        }
+        
+        const keywords = genderKeywords[filters.gender as keyof typeof genderKeywords] || []
+        if (keywords.length === 0) return true
+        return keywords.some(keyword => title.includes(keyword))
+      })
+    }
+    
+    // Filter by size
+    if (filters?.size && filters.size !== 'all') {
+      const sizeUpper = filters.size.toUpperCase()
+      filteredProducts = filteredProducts.filter((product) => {
+        const searchText = `${product.title} ${product.snippet || ''}`.toLowerCase()
+        return searchText.includes(sizeUpper.toLowerCase()) || 
+               searchText.includes(`size ${sizeUpper.toLowerCase()}`)
+      })
+    }
+    
+    // Limit final results to 10
+    const limitedProducts = filteredProducts.slice(0, 10)
+    
+    console.log(`Returning ${limitedProducts.length} filtered products`)
+    
     return NextResponse.json({
-      query,
+      query: searchQuery,
+      originalQuery: query,
+      filters,
+      styleAdvice,  // ← ADD THIS
       products: limitedProducts,
       count: limitedProducts.length
     })
-
+    
   } catch (error: any) {
     console.error('Search Error:', error)
     return NextResponse.json(
