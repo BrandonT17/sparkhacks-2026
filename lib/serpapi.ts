@@ -17,7 +17,7 @@ export interface Product {
   snippet?: string
 }
 
-export async function searchProducts(query: string, limit: number = 10): Promise<Product[]> {
+export async function searchProducts(query: string, limit: number = 12): Promise<Product[]> {
   try {
     const response = await getJson({
       engine: "google_shopping",

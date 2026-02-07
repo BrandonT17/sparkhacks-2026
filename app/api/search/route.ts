@@ -13,20 +13,16 @@ export async function POST(req: Request) {
       )
     }
 
-    // Build enhanced search query with "clothing" to filter out non-clothing items
     let searchQuery = `${query} clothing fashion`
     
-    // Add gender filter to search query
     if (filters?.gender && filters.gender !== 'all') {
       searchQuery += ` ${filters.gender}`
     }
     
-    // Add size filter to search query
     if (filters?.size && filters.size !== 'all') {
       searchQuery += ` size ${filters.size.toUpperCase()}`
     }
     
-    // Add price hint to search query
     if (filters?.priceMax && filters.priceMax < 500) {
       searchQuery += ` under $${filters.priceMax}`
     } else if (filters?.priceMin && filters.priceMin > 0) {
@@ -37,13 +33,11 @@ export async function POST(req: Request) {
     console.log('Enhanced query:', searchQuery)
     console.log('Filters:', filters)
     
-    // ← ADD THIS: Get AI style recommendation in parallel with product search
     const [products, styleAdvice] = await Promise.all([
       searchProducts(searchQuery, 20),
       getStyleRecommendation(query, filters)
     ])
     
-    // Filter out non-clothing items
     const nonClothingKeywords = [
       'phone', 'iphone', 'samsung', 'laptop', 'computer', 'tablet',
       'ipad', 'tv', 'television', 'camera', 'speaker', 'headphone',
@@ -59,9 +53,7 @@ export async function POST(req: Request) {
       return !nonClothingKeywords.some(keyword => text.includes(keyword))
     })
     
-    // CLIENT-SIDE FILTERING
     
-    // Filter by price range
     if (filters?.priceMin !== undefined || filters?.priceMax !== undefined) {
       filteredProducts = filteredProducts.filter((product) => {
         if (!product.extractedPrice) return true
@@ -73,7 +65,6 @@ export async function POST(req: Request) {
       })
     }
     
-    // Filter by gender
     if (filters?.gender && filters.gender !== 'all') {
       filteredProducts = filteredProducts.filter((product) => {
         const title = product.title.toLowerCase()
@@ -89,7 +80,6 @@ export async function POST(req: Request) {
       })
     }
     
-    // Filter by size
     if (filters?.size && filters.size !== 'all') {
       const sizeUpper = filters.size.toUpperCase()
       filteredProducts = filteredProducts.filter((product) => {
@@ -99,8 +89,7 @@ export async function POST(req: Request) {
       })
     }
     
-    // Limit final results to 10
-    const limitedProducts = filteredProducts.slice(0, 10)
+    const limitedProducts = filteredProducts.slice(0, 12)
     
     console.log(`Returning ${limitedProducts.length} filtered products`)
     
@@ -108,7 +97,7 @@ export async function POST(req: Request) {
       query: searchQuery,
       originalQuery: query,
       filters,
-      styleAdvice,  // ← ADD THIS
+      styleAdvice,  
       products: limitedProducts,
       count: limitedProducts.length
     })

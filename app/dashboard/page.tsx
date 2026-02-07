@@ -18,7 +18,7 @@ interface Product {
 export default function Dashboard() {
   const [query, setQuery] = useState("");
   const [products, setProducts] = useState<Product[]>([]);
-  const [styleAdvice, setStyleAdvice] = useState("");  // ← ADD THIS
+  const [styleAdvice, setStyleAdvice] = useState("");  
   const [loading, setLoading] = useState(false);
   
   const { filters } = useFilters();
@@ -28,7 +28,7 @@ export default function Dashboard() {
 
     setLoading(true);
     setProducts([]);
-    setStyleAdvice("");  // ← ADD THIS
+    setStyleAdvice(""); 
 
     try {
       const response = await fetch("/api/search", {
@@ -42,7 +42,7 @@ export default function Dashboard() {
 
       const result = await response.json();
       setProducts(result.products || []);
-      setStyleAdvice(result.styleAdvice || "");  // ← ADD THIS
+      setStyleAdvice(result.styleAdvice || ""); 
     } catch (error) {
       console.error("Error:", error);
       alert("Something went wrong. Please try again.");
@@ -59,7 +59,6 @@ export default function Dashboard() {
 
   return (
     <div className="p-4 mt-4">
-      {/* SEARCH */}
       <section className="pb-8">
         <div className="text-center text-lg font-medium">
           <h1 className="pb-4">What are you looking for?</h1>
@@ -86,14 +85,12 @@ export default function Dashboard() {
         </div>
       </section>
 
-      {/* ← ADD THIS: AI STYLE ADVICE */}
       {styleAdvice && !loading && (
-        <section className="mb-6 mx-auto w-4/5">
-          <div className="bg-gradient-to-r from-purple-50 to-blue-50 border border-purple-200 rounded-lg p-6">
+        <section className="mb-6 mx-auto w-3/5">
+          <div className="border rounded-lg bg-stone-100 rounded-lg p-6">
             <div className="flex items-start gap-3">
-              <div className="text-2xl">✨</div>
               <div>
-                <h3 className="font-semibold text-purple-900 mb-2">Style Recommendation</h3>
+                <h3 className="font-semibold mb-2">Style Recommendation</h3>
                 <p className="text-gray-700 leading-relaxed">{styleAdvice}</p>
               </div>
             </div>
@@ -101,7 +98,6 @@ export default function Dashboard() {
         </section>
       )}
 
-      {/* RESULTS */}
       <section className="border rounded-lg mt-4 p-4">
         <h1 className="pb-4">
           {products.length > 0
@@ -109,14 +105,12 @@ export default function Dashboard() {
             : "Results:"}
         </h1>
 
-        {/* Loading State */}
         {loading && (
           <div className="flex items-center justify-center min-h-[200px]">
             <p className="text-gray-500">Searching for products...</p>
           </div>
         )}
 
-        {/* Empty State */}
         {!loading && products.length === 0 && (
           <div className="flex items-center justify-center min-h-[200px]">
             <p className="text-gray-400">
@@ -125,7 +119,6 @@ export default function Dashboard() {
           </div>
         )}
 
-        {/* Product Grid */}
         {!loading && products.length > 0 && (
           <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
             {products.map((product) => (

@@ -32,10 +32,9 @@ Start with "You should opt for..." or "Consider..." or "I'd recommend..."
 Keep it concise, friendly, and helpful.`,
   });
 
-  return response.text;
+  return response.text || "";
 }
 
-// Keep your existing function
 export async function getAIRecommendations(userQuery: string) {
   const response = await ai.models.generateContent({
     model: "gemini-3-flash-preview",
@@ -52,5 +51,5 @@ For each item, give:
 Keep it short and helpful.`,
   });
 
-  return response.text;
+  return response.text || ""; 
 }

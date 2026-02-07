@@ -21,10 +21,9 @@ import {
   TooltipProvider,
   TooltipTrigger,
 } from "@/components/ui/tooltip";
-import { useFilters } from "@/lib/filter-context";  // ← ADD THIS
+import { useFilters } from "@/lib/filter-context"; 
 
 export function AppSidebar() {
-  // Use shared filter state from context
   const { filters, setGender, setSize, setPrice, setEthical } = useFilters();
 
   return (
@@ -36,12 +35,11 @@ export function AppSidebar() {
       </SidebarHeader>
 
       <SidebarContent className="px-8 ">
-        <Accordion 
-          type="multiple" 
-          defaultValue={["gender", "size", "price"]} 
+        <Accordion
+          type="multiple"
+          defaultValue={["gender", "size", "price"]}
           className="w-full"
         >
-          {/* GENDER */}
           <FilterItem value="gender" title="GENDER">
             <RadioGroup
               value={filters.gender}
@@ -67,7 +65,6 @@ export function AppSidebar() {
             </RadioGroup>
           </FilterItem>
 
-          {/* SIZE */}
           <FilterItem value="size" title="SIZE">
             <RadioGroup
               value={filters.size}
@@ -95,12 +92,11 @@ export function AppSidebar() {
             </RadioGroup>
           </FilterItem>
 
-          {/* PRICE RANGE */}
           <FilterItem value="price" title="PRICE RANGE">
             <div className="pt-3">
               <div className="mb-2 flex items-center justify-between text-sm font-normal text-neutral-600">
                 <span>${filters.priceMin}</span>
-                <span>${filters.priceMax}+</span>
+                <span>${filters.priceMax}</span>
               </div>
 
               <Slider
@@ -135,7 +131,8 @@ export function AppSidebar() {
                 sideOffset={6}
                 className="max-w-[200px] rounded-md bg-white px-2.5 py-2 text-xs leading-snug text-neutral-800 border border-neutral-200 shadow-md text-center"
               >
-                Shop smarter. This filter surfaces brands committed to ethical production and responsible sourcing.
+                Shop smarter. This filter surfaces brands committed to ethical
+                production and responsible sourcing.
               </TooltipContent>
             </Tooltip>
           </TooltipProvider>
@@ -162,9 +159,7 @@ function FilterItem({
         </span>
       </div>
 
-      <AccordionContent className="pb-3">
-        {children}
-      </AccordionContent>
+      <AccordionContent className="pb-3">{children}</AccordionContent>
     </AccordionItem>
   );
 }
