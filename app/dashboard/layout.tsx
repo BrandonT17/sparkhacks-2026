@@ -1,4 +1,4 @@
-import { SidebarProvider, SidebarTrigger } from "@/components/ui/sidebar";
+import { SidebarProvider } from "@/components/ui/sidebar";
 import { AppSidebar } from "@/components/ui/layout/app-sidebar";
 import Header from "@/components/ui/layout/header";
 import Footer from "@/components/ui/layout/footer";
@@ -8,7 +8,7 @@ export default function Layout({ children }: { children: React.ReactNode }) {
     <SidebarProvider>
       <AppSidebar />
       <main className="flex flex-row w-full h-screen">
-        <SidebarTrigger />
+        {/* <SidebarTrigger /> */}
         <div className="flex flex-col w-full">
           <Header />
           {children}
